@@ -1,5 +1,6 @@
 require  "nokogiri"
 require 'health-data-standards'
+
 # bundle update
 # bundle exec ruby patid_detector.rb 
 module HealthDataStandards
@@ -22,7 +23,7 @@ module HealthDataStandards
         end
         
         class CypressMedicalNumberRetriver
-            
+            attr_accessor :qrda1Folder, :mongoParametersFile
             #constructor taking the location of the QRDA1 files to explore 
             #and a file containing MongoDB connection parameters
             def initialize (qrda1Folder,mongoParametersFile)
@@ -33,8 +34,7 @@ module HealthDataStandards
             
             #a method that goues through the directory containing the QRDA files and loads them into an array of PatientFromQRDA 
             def loadQRDAFiles()
-                # patientsFromQRDAs = Array.new
-                # parseQRDAsIntopatientsFromQRDAs(patientsFromQRDAs)
+                #method that goues through the directory containing the QRDA files and loads them into an array of PatientFromQRDA 
                 patientsFromQRDAs = Array.new
                 Dir.glob("#{@qrda1Folder}/*.xml") do |qrdaFile|
                     puts "\nloading on:::: #{qrdaFile}"
@@ -48,7 +48,7 @@ module HealthDataStandards
                     
                     
                     for encounter in patient.encounters
-                        # puts "encounter: #{encounter.codes}"
+                        puts "encounter: #{encounter.codes}"
                         patientFromQRDA.encounters << encounter.codes
                     end
                     for condition in patient.conditions
@@ -56,12 +56,12 @@ module HealthDataStandards
                         patientFromQRDA.conditions << condition.codes
                     end
                     for ip in patient.insurance_providers
-                        # puts "insurance: #{ip.codes}"
+                        puts "insurance: #{ip.codes}"
                         patientFromQRDA.insurances << ip.codes
                     end
                     for procedure in  patient.procedures
-                        # puts "procedure: #{procedure.codes['LOINC']}"
-                        # puts "procedure: #{procedure.codes}"
+                        puts "procedure: #{procedure.codes['LOINC']}"
+                        puts "procedure: #{procedure.codes}"
                         patientFromQRDA.procedures << procedure.codes
                     end
                     # encounter = patient.encounters.first
@@ -78,6 +78,30 @@ module HealthDataStandards
                 puts "encounters  collected for first "+patientsFromQRDAs.first.encounters.length.to_s
                 puts "procedures  collected for first "+patientsFromQRDAs.first.procedures.length.to_s 
                 puts "conditions  collected for first "+patientsFromQRDAs.first.conditions.length.to_s 
+                # the QRDA patients are loaded into patientsFromQRDAs
+                # go against a Cypress mongoDb and collect patients (they are stored in records collection) that are similar with the ones collected from QRDA files - a QRDA patinet is equivalent with one from Cypress db if encounters+conditions (Diagnosis)+insurance_providers+procedures are similar
+                
+                # session = Moped::Session.new([ "54.152.244.137:27017" ])
+                # session.use "cypress_development"
+                # session[:records].find(first:"Randy")
+                Mongoid.load!("mongoid.yml", :production)
+                puts "#{Mongoid.default_session.collections}"
+                
+                # db = Mongoid::Sessions.default
+                # found = Record.where(:birthdate.gte => 0)
+                # Record.each do |record|
+                #     puts "#{record}"
+                # end
+                # existing = Record.where(first:"Randy").first
+                # puts ":::"+ existing.to_s
+                # puts found.length.to_s
+                
+                # mongo_client=nil
+                # mongo_client = MongoClient.new("54.152.244.137", 27017)
+                # puts mongo_client.database_names 
+                # client  = MongoClient.new("54.152.244.137", 27017)
+                # db   = client.db('cypress_development')
+                puts "After mongo"
                 
             end
             
@@ -93,13 +117,13 @@ module HealthDataStandards
                 end
             end
         end
-        puts "gorila starts"
+        puts "starts"
         #initialize mongo
         Mongoid.load!("mongoid.yml", :development)
         retriever = CypressMedicalNumberRetriver.new("/home/ubuntu/workspace/data/_tmp", "/home/ubuntu/workspace/data/remoteMongo/remoteMongo.properties")
         # retriever.listFiles()
         retriever.loadQRDAFiles()
-        puts "gorila ends"
+        puts "ends"
     end
   end
 end

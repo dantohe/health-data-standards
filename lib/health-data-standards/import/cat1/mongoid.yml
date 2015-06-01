@@ -1,7 +1,7 @@
 development:
   sessions:
     default:
-      database: test
+      database: patid
       hosts:
         - 54.152.244.137:27017
   options:
@@ -9,7 +9,7 @@ development:
 
 test:
   sessions:
-      database: test
+      database: patid
       hosts:
         - 54.152.244.137:27017
   options:
@@ -18,16 +18,16 @@ test:
 production:
   sessions:
     default:
-      database: test
+      database: cypress_development
       hosts:
         - 54.152.244.137:27017
   options:
-    raise_not_found_error: false
+    raise_not_found_error: true
 
 measure_eval:
   sessions:
     default:
-      database: test
+      database: patid
       hosts:
         - 54.152.244.137:27017
   options:

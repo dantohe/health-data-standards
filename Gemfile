@@ -7,6 +7,10 @@ group :development do
   gem 'pry', '~> 0.9.10'
   gem 'pry-nav', '~> 0.2.2', platforms: [:ruby_21, :ruby_22]
   gem 'nokogiri'
+  # gem 'mongo', '~> 2.0'
+  # gem 'mongo', :git => 'git://github.com/mongodb/mongo-ruby-driver.git'
+  # gem 'bson'
+  
 end
 
 group :test do
